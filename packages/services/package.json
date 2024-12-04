@@ -1,0 +1,27 @@
+{
+  "name": "@dvote/election-service",
+  "version": "1.0.0",
+  "description": "Manages election creation and lifecycle",
+  "main": "dist/index",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run compile",
+    "build:prod": "npm run clean && npm run compile:prod",
+    "clean": "rm -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json --skipLibCheck",
+    "compile:prod": "tsc -p tsconfig-prod.build.json --skipLibCheck",
+    "test": "NODE_ENV=test DB_PORT=5444 jest --passWithNoTests --forceExit",
+    "test:ci": "NODE_ENV=ci jest --colors --passWithNoTests --forceExit --runInBand"
+  },
+  "dependencies": {
+    "@dvote/common": "1.0.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@hashgraph/sdk": "^2.42.0"
+  },
+  "private": true
+}

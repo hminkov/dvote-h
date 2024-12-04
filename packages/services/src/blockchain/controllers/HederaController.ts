@@ -5,6 +5,11 @@ import { HederaService } from '../services/HederaService'
 export class HederaController {
   constructor(private readonly hederaService: HederaService) {}
 
+  @Get('ping')
+  ping() {
+    return { status: 'success', message: 'Server is responding' }
+  }
+
   @Get('health')
   async healthCheck() {
     return {
@@ -46,6 +51,30 @@ export class HederaController {
       return {
         success: false,
         error: error.message,
+      }
+    }
+  }
+
+  @Get('test')
+  async testConnection() {
+    try {
+      const operator = {
+        id: this.hederaService.getOperatorId(),
+        network: 'testnet',
+      }
+
+      const isConnected = await this.hederaService.testConnection()
+
+      return {
+        status: isConnected ? 'success' : 'failed',
+        operator,
+        timestamp: new Date().toISOString(),
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: error.message,
+        details: error.stack,
       }
     }
   }

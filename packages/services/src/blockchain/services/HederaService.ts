@@ -23,8 +23,8 @@ export class HederaService {
   private electionTopicId: string | null = null
 
   constructor() {
-    this.operatorId = 'HEDERA_ACCOUNT_ID'
-    this.operatorKey = 'HEDERA_PRIVATE_KEY'
+    this.operatorId = '0.0.5179595'
+    this.operatorKey = '3030020100300706052b8104000a042204201b01eece97837e0a93adb569f313017a763dd38ba70225bab4f6203f3009a65d'
 
     this.client = Client.forTestnet()
 
@@ -42,11 +42,17 @@ export class HederaService {
   async createTopic(): Promise<string> {
     try {
       const transaction = new TopicCreateTransaction()
-      const txResponse = await transaction.execute(this.client)
+        .setMaxTransactionFee(1) // Set low fee to test
+        .freezeWith(this.client)
+
+      const signedTx = await transaction.sign(PrivateKey.fromString(this.operatorKey))
+      const txResponse = await signedTx.execute(this.client)
+
+      // Wait for receipt with timeout
       const receipt = await txResponse.getReceipt(this.client)
-      const topicId = receipt.topicId
-      return topicId.toString()
+      return receipt.topicId.toString()
     } catch (error) {
+      console.error('Topic creation error:', error)
       throw new Error(`Error creating topic: ${error.message}`)
     }
   }
@@ -216,5 +222,22 @@ export class HederaService {
     } catch (error) {
       throw new Error(`Error submitting message: ${error.message}`)
     }
+  }
+
+  async testConnection(): Promise<boolean> {
+    try {
+      const transaction = new TopicCreateTransaction()
+      const txResponse = await transaction.execute(this.client)
+      const receipt = await txResponse.getReceipt(this.client)
+      console.log('Test topic created:', receipt.topicId.toString())
+      return true
+    } catch (error) {
+      console.error('Connection test failed:', error)
+      return false
+    }
+  }
+
+  getOperatorId(): string {
+    return this.operatorId
   }
 }
